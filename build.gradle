@@ -36,14 +36,14 @@ sonar {
     }
 }
 
-def subprojectBuildDirs = subprojects.collect { subproject ->
+def projectBuildDirs = [layout.buildDirectory.get().asFile] + subprojects.collect { subproject ->
     subproject.layout.buildDirectory.get().asFile
 }
 
 tasks.register('createMissingIssuesJson') {
-    inputs.property("subprojectBuildDirs", subprojectBuildDirs.collect { it.absolutePath })
+    inputs.property("projectBuildDirs", projectBuildDirs.collect { it.absolutePath })
     doLast {
-        subprojectBuildDirs.each { buildDir ->
+        projectBuildDirs.each { buildDir ->
             if (!buildDir.exists()) {
                 buildDir.mkdirs()
             }

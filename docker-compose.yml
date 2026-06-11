@@ -1,0 +1,40 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:15-alpine
+    container_name: onboarding-postgres
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: usersdb
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./infra-init/postgres:/docker-entrypoint-initdb.d
+
+  redis:
+    image: redis:7-alpine
+    container_name: onboarding-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+
+  localstack:
+    image: localstack/localstack:latest
+    container_name: onboarding-localstack
+    ports:
+      - "4566:4566"
+    environment:
+      - SERVICES=sqs,dynamodb
+      - AWS_DEFAULT_REGION=us-east-1
+    volumes:
+      - localstack_data:/var/lib/localstack
+      - ./infra-init/aws:/etc/localstack/init/ready.d
+
+volumes:
+  postgres_data:
+  redis_data:
+  localstack_data:

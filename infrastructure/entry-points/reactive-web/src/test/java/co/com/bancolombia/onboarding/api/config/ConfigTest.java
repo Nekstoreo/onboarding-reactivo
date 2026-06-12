@@ -11,6 +11,10 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.reactive.server.WebTestClient;
 
+import co.com.bancolombia.onboarding.usecase.GetAllUsersUseCase;
+import co.com.bancolombia.onboarding.usecase.GetUserByIdUseCase;
+import co.com.bancolombia.onboarding.usecase.GetUsersByNameUseCase;
+
 @ContextConfiguration(classes = {RouterRest.class, Handler.class})
 @WebFluxTest
 @Import({CorsConfig.class, SecurityHeadersConfig.class})
@@ -21,6 +25,15 @@ class ConfigTest {
 
     @MockitoBean
     private CreateUserUseCase createUserUseCase;
+
+    @MockitoBean
+    private GetUserByIdUseCase getUserByIdUseCase;
+
+    @MockitoBean
+    private GetAllUsersUseCase getAllUsersUseCase;
+
+    @MockitoBean
+    private GetUsersByNameUseCase getUsersByNameUseCase;
 
     @Test
     void corsConfigurationShouldAllowOrigins() {

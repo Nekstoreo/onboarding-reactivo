@@ -58,4 +58,22 @@ class RestConsumerTest {
                         user.getAvatar().equals("https://reqres.in/img/faces/1-image.jpg"))
                 .verifyComplete();
     }
+
+    @Test
+    @DisplayName("Validate external user fetch fallback on error")
+    void validateFetchUserFallbackOnError() {
+        mockBackEnd.enqueue(new MockResponse()
+                .setHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+                .setResponseCode(HttpStatus.INTERNAL_SERVER_ERROR.value()));
+
+        var response = restConsumer.fetchUser("1");
+
+        StepVerifier.create(response)
+                .expectNextMatches(user -> user.getId().equals("1") &&
+                        user.getEmail().equals("george.bluth@reqres.in") &&
+                        user.getFirstName().equals("George") &&
+                        user.getLastName().equals("Bluth") &&
+                        user.getAvatar().equals("https://reqres.in/img/faces/1-image.jpg"))
+                .verifyComplete();
+    }
 }

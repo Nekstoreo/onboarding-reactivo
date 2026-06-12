@@ -20,8 +20,17 @@ public class SQSProcessor implements Function<Message, Mono<Void>> {
 
     @Override
     public Mono<Void> apply(Message message) {
+        log.info("Received SQS message with ID: {}", message.messageId());
         return Mono.fromCallable(() -> objectMapper.readValue(message.body(), User.class))
-                .flatMap(processUserEventUseCase::processUserEvent)
+                .flatMap(user -> {
+                    log.info("Processing user event for user ID: {}", user.getId());
+                    return processUserEventUseCase.processUserEvent(user)
+                            .doOnSuccess(processedUser -> {
+                                if (processedUser != null) {
+                                    log.info("Successfully processed user event in uppercase for user ID: {}", processedUser.getId());
+                                }
+                            });
+                })
                 .doOnError(err -> log.error("Error processing SQS event: {}", err.getMessage(), err))
                 .then();
     }

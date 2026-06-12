@@ -1,5 +1,4 @@
-package co.com.bancolombia.onboarding.consumer;
-
+package co.com.bancolombia.onboarding.model.user;
 import lombok.Builder;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -11,8 +10,10 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder(toBuilder = true)
-public class ObjectResponse {
-
-    private String state;
-
+public class User {
+    private String id;
+    private String email;
+    private String firstName;
+    private String lastName;
+    private String avatar;
 }

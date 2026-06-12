@@ -31,7 +31,19 @@ cors:
 adapter:
   restconsumer:
     timeout: 5000
-    url: "http://localhost:8080"
+    url: "https://reqres.in"
+  sqs:
+    region: "us-east-1"
+    queueUrl: "http://localhost:4566/000000000000/user-created-events"
+    endpoint: "http://localhost:4566"
+adapters:
+  r2dbc:
+    host: "localhost"
+    port: 5432
+    database: "usersdb"
+    schema: "public"
+    username: "postgres"
+    password: "postgres"
 resilience4j:
   circuitbreaker:
     instances:
@@ -54,5 +66,6 @@ resilience4j:
         minimumNumberOfCalls: 10
         waitDurationInOpenState: "10s"
 aws:
+  region: "us-east-1"
   dynamodb:
-    endpoint: "http://localhost:8000"
+    endpoint: "http://localhost:4566"

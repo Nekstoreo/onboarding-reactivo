@@ -36,4 +36,29 @@ sonar {
     }
 }
 
+def projectBuildDirs = [layout.buildDirectory.get().asFile] + subprojects.collect { subproject ->
+    subproject.layout.buildDirectory.get().asFile
+}
+
+tasks.register('createMissingIssuesJson') {
+    inputs.property("projectBuildDirs", projectBuildDirs.collect { it.absolutePath })
+    doLast {
+        projectBuildDirs.each { buildDir ->
+            if (!buildDir.exists()) {
+                buildDir.mkdirs()
+            }
+            def issuesFile = new File(buildDir, "issues.json")
+            if (!issuesFile.exists()) {
+                issuesFile.text = '{"issues":[]}'
+            }
+        }
+    }
+}
+
+project.tasks.configureEach { task ->
+    if (task.name == 'sonar') {
+        task.dependsOn 'createMissingIssuesJson'
+    }
+}
+
 apply from: './main.gradle'

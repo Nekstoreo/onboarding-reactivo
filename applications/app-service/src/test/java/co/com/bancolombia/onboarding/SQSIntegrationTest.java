@@ -7,11 +7,14 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
+import reactor.core.publisher.Mono;
 import software.amazon.awssdk.enhanced.dynamodb.DynamoDbEnhancedAsyncClient;
 import software.amazon.awssdk.enhanced.dynamodb.Key;
 import software.amazon.awssdk.enhanced.dynamodb.TableSchema;
 import software.amazon.awssdk.services.sqs.SqsAsyncClient;
 import software.amazon.awssdk.services.sqs.model.SendMessageRequest;
+
+import java.time.Duration;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -50,18 +53,12 @@ class SQSIntegrationTest {
         // Act - Send message to local SQS queue
         sqsAsyncClient.sendMessage(sendMessageRequest).get();
 
-        // Assert - Wait and poll local DynamoDB table
+        // Assert - Wait and poll local DynamoDB table in a non-blocking reactive way
         var table = dynamoDbEnhancedAsyncClient.table("users-uppercase", TableSchema.fromBean(UserNoSqlEntity.class));
-        UserNoSqlEntity savedEntity = null;
 
-        // Poll for up to 10 seconds
-        for (int i = 0; i < 20; i++) {
-            savedEntity = table.getItem(Key.builder().partitionValue("integration-test-1").build()).get();
-            if (savedEntity != null) {
-                break;
-            }
-            Thread.sleep(500);
-        }
+        UserNoSqlEntity savedEntity = Mono.defer(() -> Mono.fromFuture(table.getItem(Key.builder().partitionValue("integration-test-1").build())))
+                .repeatWhenEmpty(20, repeat -> repeat.delayElements(Duration.ofMillis(500)))
+                .block(Duration.ofSeconds(10));
 
         // Verify entity was processed, transformed to uppercase, and saved in DynamoDB
         assertNotNull(savedEntity, "User was not processed and saved in DynamoDB within timeout");

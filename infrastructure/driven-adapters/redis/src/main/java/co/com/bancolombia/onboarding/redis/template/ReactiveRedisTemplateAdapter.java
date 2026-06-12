@@ -1,20 +1,23 @@
 package co.com.bancolombia.onboarding.redis.template;
 
+import co.com.bancolombia.onboarding.model.user.User;
+import co.com.bancolombia.onboarding.model.user.gateways.UserCacheGateway;
 import co.com.bancolombia.onboarding.redis.template.helper.ReactiveTemplateAdapterOperations;
 import org.reactivecommons.utils.ObjectMapper;
 import org.springframework.data.redis.connection.ReactiveRedisConnectionFactory;
 import org.springframework.stereotype.Component;
+import reactor.core.publisher.Mono;
 
 @Component
-public class ReactiveRedisTemplateAdapter extends ReactiveTemplateAdapterOperations<Object/* change for domain model */, String, Object/* change for adapter model */>
-// implements ModelRepository from domain
-{
+public class ReactiveRedisTemplateAdapter extends ReactiveTemplateAdapterOperations<User, String, User>
+        implements UserCacheGateway {
+
     public ReactiveRedisTemplateAdapter(ReactiveRedisConnectionFactory connectionFactory, ObjectMapper mapper) {
-        /**
-         *  Could be use mapper.mapBuilder if your domain model implement builder pattern
-         *  super(repository, mapper, d -> mapper.mapBuilder(d,ObjectModel.ObjectModelBuilder.class).build());
-         *  Or using mapper.map with the class of the object model
-         */
-        super(connectionFactory, mapper, d -> mapper.map(d, Object.class/* change for domain model */));
+        super(connectionFactory, mapper, d -> mapper.map(d, User.class));
+    }
+
+    @Override
+    public Mono<User> save(User user) {
+        return super.save(user.getId(), user);
     }
 }

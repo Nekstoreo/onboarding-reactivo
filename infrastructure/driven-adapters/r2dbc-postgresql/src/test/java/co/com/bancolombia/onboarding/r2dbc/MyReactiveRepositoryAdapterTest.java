@@ -7,6 +7,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.reactivecommons.utils.ObjectMapper;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
@@ -49,6 +50,40 @@ class MyReactiveRepositoryAdapterTest {
         when(mapper.map(entity, User.class)).thenReturn(user);
 
         Mono<User> result = repositoryAdapter.save(user);
+
+        StepVerifier.create(result)
+                .expectNext(user)
+                .verifyComplete();
+    }
+
+    @Test
+    void mustFindAllValues() {
+        User user1 = User.builder().id("1").email("test1@test.com").build();
+        UserEntity entity1 = UserEntity.builder().id("1").email("test1@test.com").build();
+        User user2 = User.builder().id("2").email("test2@test.com").build();
+        UserEntity entity2 = UserEntity.builder().id("2").email("test2@test.com").build();
+
+        when(repository.findAll()).thenReturn(Flux.just(entity1, entity2));
+        when(mapper.map(entity1, User.class)).thenReturn(user1);
+        when(mapper.map(entity2, User.class)).thenReturn(user2);
+
+        Flux<User> result = repositoryAdapter.findAll();
+
+        StepVerifier.create(result)
+                .expectNext(user1)
+                .expectNext(user2)
+                .verifyComplete();
+    }
+
+    @Test
+    void mustFindValuesByName() {
+        User user = User.builder().id("1").firstName("George").email("test@test.com").build();
+        UserEntity entity = UserEntity.builder().id("1").firstName("George").email("test@test.com").build();
+
+        when(repository.findAllByFirstNameIgnoreCase("George")).thenReturn(Flux.just(entity));
+        when(mapper.map(entity, User.class)).thenReturn(user);
+
+        Flux<User> result = repositoryAdapter.findByName("George");
 
         StepVerifier.create(result)
                 .expectNext(user)

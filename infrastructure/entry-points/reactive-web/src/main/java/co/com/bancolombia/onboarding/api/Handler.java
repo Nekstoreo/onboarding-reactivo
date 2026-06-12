@@ -21,20 +21,7 @@ public class Handler {
     private final GetAllUsersUseCase getAllUsersUseCase;
     private final GetUsersByNameUseCase getUsersByNameUseCase;
 
-    public Mono<ServerResponse> listenGETUseCase(ServerRequest serverRequest) {
-        // useCase.logic();
-        return ServerResponse.ok().bodyValue("");
-    }
 
-    public Mono<ServerResponse> listenGETOtherUseCase(ServerRequest serverRequest) {
-        // useCase2.logic();
-        return ServerResponse.ok().bodyValue("");
-    }
-
-    public Mono<ServerResponse> listenPOSTUseCase(ServerRequest serverRequest) {
-        // useCase.logic();
-        return ServerResponse.ok().bodyValue("");
-    }
 
     public Mono<ServerResponse> createUser(ServerRequest serverRequest) {
         String id = serverRequest.pathVariable("id");

@@ -1,0 +1,80 @@
+server:
+  port: 8080
+spring:
+  application:
+    name: "UserReactiveApp"
+  devtools:
+    add-properties: false
+  h2:
+    console:
+      enabled: true
+      path: "/h2"
+  profiles:
+    include: null
+  redis:
+    host: "localhost"
+    port: 6379
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "health"
+  endpoint:
+    health:
+      probes:
+        enabled: true
+  health:
+    circuitbreakers:
+      enabled: true
+cors:
+  allowed-origins: "http://localhost:4200,http://localhost:8080"
+adapter:
+  restconsumer:
+    timeout: 5000
+    url: "https://reqres.in"
+  sqs:
+    region: "us-east-1"
+    queueUrl: "http://localhost:4566/000000000000/user-created-events"
+    endpoint: "http://localhost:4566"
+adapters:
+  r2dbc:
+    host: "localhost"
+    port: 5432
+    database: "usersdb"
+    schema: "public"
+    username: "postgres"
+    password: "postgres"
+resilience4j:
+  circuitbreaker:
+    instances:
+      testGet:
+        registerHealthIndicator: true
+        failureRateThreshold: 50
+        slowCallRateThreshold: 50
+        slowCallDurationThreshold: "2s"
+        permittedNumberOfCallsInHalfOpenState: 3
+        slidingWindowSize: 10
+        minimumNumberOfCalls: 10
+        waitDurationInOpenState: "10s"
+      testPost:
+        registerHealthIndicator: true
+        failureRateThreshold: 50
+        slowCallRateThreshold: 50
+        slowCallDurationThreshold: "2s"
+        permittedNumberOfCallsInHalfOpenState: 3
+        slidingWindowSize: 10
+        minimumNumberOfCalls: 10
+        waitDurationInOpenState: "10s"
+aws:
+  region: "us-east-1"
+  dynamodb:
+    endpoint: "http://localhost:4566"
+entrypoint:
+  sqs:
+    region: "us-east-1"
+    endpoint: "http://localhost:4566"
+    queueUrl: "http://localhost:4566/000000000000/user-created-events"
+    waitTimeSeconds: 20
+    maxNumberOfMessages: 10
+    visibilityTimeoutSeconds: 10
+    numberOfThreads: 1

@@ -13,11 +13,18 @@ import software.amazon.awssdk.auth.credentials.WebIdentityTokenFileCredentialsPr
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.sqs.SqsAsyncClient;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import java.net.URI;
 
 @Configuration
 @ConditionalOnMissingBean(SqsAsyncClient.class)
 public class SQSSenderConfig {
+
+    @Bean
+    @ConditionalOnMissingBean(ObjectMapper.class)
+    public ObjectMapper jacksonObjectMapper() {
+        return new ObjectMapper();
+    }
 
     @Bean
     public SqsAsyncClient configSqs(SQSSenderProperties properties) {
@@ -36,6 +43,7 @@ public class SQSSenderConfig {
                 .addCredentialsProvider(ProfileCredentialsProvider.create())
                 .addCredentialsProvider(ContainerCredentialsProvider.builder().build())
                 .addCredentialsProvider(InstanceProfileCredentialsProvider.create())
+                .addCredentialsProvider(() -> software.amazon.awssdk.auth.credentials.AwsBasicCredentials.create("test", "test"))
                 .build();
     }
 

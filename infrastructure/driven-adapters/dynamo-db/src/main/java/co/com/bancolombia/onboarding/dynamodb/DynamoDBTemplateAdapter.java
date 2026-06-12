@@ -16,12 +16,7 @@ import java.util.List;
 public class DynamoDBTemplateAdapter extends TemplateAdapterOperations<Object /*domain model*/, String, ModelEntity /*adapter model*/> /* implements Gateway from domain */ {
 
     public DynamoDBTemplateAdapter(DynamoDbEnhancedAsyncClient connectionFactory, ObjectMapper mapper) {
-        /**
-         *  Could be use mapper.mapBuilder if your domain model implement builder pattern
-         *  super(repository, mapper, d -> mapper.mapBuilder(d,ObjectModel.ObjectModelBuilder.class).build());
-         *  Or using mapper.map with the class of the object model
-         */
-        super(connectionFactory, mapper, d -> mapper.map(d, Object.class /*domain model*/), "table_name", "secondary_index" /*index is optional*/);
+        super(connectionFactory, mapper, d -> mapper.map(d, Object.class /*domain model*/), "table_name");
     }
 
     public Mono<List<Object /*domain model*/>> getEntityBySomeKeys(String partitionKey, String sortKey) {

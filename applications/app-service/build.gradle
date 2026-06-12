@@ -1,6 +1,7 @@
 apply plugin: 'org.springframework.boot'
 
 dependencies {
+	implementation project(':sqs-listener')
 	implementation project(':sqs-sender')
 	implementation project(':dynamo-db')
 	implementation 'software.amazon.awssdk:sts'
@@ -8,6 +9,7 @@ dependencies {
 	implementation project(':rest-consumer')
 	implementation 'org.springframework.boot:spring-boot-starter-webflux'
 	implementation 'org.reactivecommons.utils:object-mapper:0.1.0'
+	implementation 'com.fasterxml.jackson.core:jackson-databind'
 	implementation project(':r2dbc-postgresql')
 	implementation project(':reactive-web')
     implementation project(':model')
@@ -16,6 +18,12 @@ dependencies {
     runtimeOnly('org.springframework.boot:spring-boot-devtools')
     testImplementation 'com.tngtech.archunit:archunit:1.4.1'
     testImplementation 'tools.jackson.core:jackson-databind'
+    testImplementation project(':sqs-listener')
+    testImplementation project(':sqs-sender')
+    testImplementation project(':dynamo-db')
+    testImplementation 'software.amazon.awssdk:sqs'
+    testImplementation 'software.amazon.awssdk:dynamodb-enhanced'
+    testImplementation 'com.fasterxml.jackson.core:jackson-databind'
 }
 
 tasks.register('explodedJar', Copy) {
@@ -31,4 +39,8 @@ jar {
 bootJar {
     // Sets output jar name
     archiveFileName = "${project.getParent().getName()}.${archiveExtension.get()}"
+}
+
+test {
+    systemProperty 'reactor.blockhound.enabled', 'false'
 }

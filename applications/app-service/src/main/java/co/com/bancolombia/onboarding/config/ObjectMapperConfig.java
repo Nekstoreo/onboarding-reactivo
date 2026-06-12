@@ -13,4 +13,9 @@ public class ObjectMapperConfig {
         return new ObjectMapperImp();
     }
 
+    @Bean
+    public com.fasterxml.jackson.databind.ObjectMapper jacksonObjectMapper() {
+        return new com.fasterxml.jackson.databind.ObjectMapper();
+    }
+
 }

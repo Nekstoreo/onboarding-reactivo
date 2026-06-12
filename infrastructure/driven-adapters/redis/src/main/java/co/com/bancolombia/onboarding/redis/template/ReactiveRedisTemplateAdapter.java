@@ -17,11 +17,6 @@ public class ReactiveRedisTemplateAdapter extends ReactiveTemplateAdapterOperati
     }
 
     @Override
-    public Mono<User> findById(String id) {
-        return super.findById(id);
-    }
-
-    @Override
     public Mono<User> save(User user) {
         return super.save(user.getId(), user);
     }

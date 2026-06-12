@@ -53,6 +53,7 @@ public class Handler {
     }
 
     public Mono<ServerResponse> getAllUsers(ServerRequest serverRequest) {
+        serverRequest.path();
         return ServerResponse.ok()
                 .contentType(MediaType.APPLICATION_JSON)
                 .body(getAllUsersUseCase.getAllUsers(), User.class);

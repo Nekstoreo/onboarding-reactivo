@@ -1,6 +1,6 @@
 package co.com.bancolombia.onboarding.consumer;
 
-import co.com.bancolombia.onboarding.model.user.User;
+
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
 import org.junit.jupiter.api.AfterAll;
@@ -38,15 +38,16 @@ class RestConsumerTest {
         mockBackEnd.enqueue(new MockResponse()
                 .setHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
                 .setResponseCode(HttpStatus.OK.value())
-                .setBody("{\n" +
-                        "  \"data\": {\n" +
-                        "    \"id\": \"1\",\n" +
-                        "    \"email\": \"george.bluth@reqres.in\",\n" +
-                        "    \"first_name\": \"George\",\n" +
-                        "    \"last_name\": \"Bluth\",\n" +
-                        "    \"avatar\": \"https://reqres.in/img/faces/1-image.jpg\"\n" +
-                        "  }\n" +
-                        "}"));
+                .setBody("""
+                        {
+                          "data": {
+                            "id": "1",
+                            "email": "george.bluth@reqres.in",
+                            "first_name": "George",
+                            "last_name": "Bluth",
+                            "avatar": "https://reqres.in/img/faces/1-image.jpg"
+                          }
+                        }"""));
 
         var response = restConsumer.fetchUser("1");
 

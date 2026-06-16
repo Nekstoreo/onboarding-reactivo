@@ -101,7 +101,8 @@ class RouterRestTest {
                 .exchange()
                 .expectStatus().isNotFound()
                 .expectBody()
-                .jsonPath("$.message").isEqualTo("User with id 999 not found");
+                .jsonPath("$.message").isEqualTo("User with id 999 not found")
+                .jsonPath("$.requestId").exists();
     }
 
     @Test

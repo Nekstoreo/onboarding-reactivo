@@ -12,7 +12,7 @@ services:
       POSTGRES_DB: usersdb
     volumes:
       - postgres_data:/var/lib/postgresql/data
-      - ./infra-init/postgres:/docker-entrypoint-initdb.d
+      - ./infra-init/postgres:/docker-entrypoint-initdb.d:z
 
   redis:
     image: redis:7-alpine
@@ -32,7 +32,7 @@ services:
       - AWS_DEFAULT_REGION=us-east-1
     volumes:
       - localstack_data:/var/lib/localstack
-      - ./infra-init/aws:/etc/localstack/init/ready.d
+      - ./infra-init/aws:/etc/localstack/init/ready.d:z
 
 volumes:
   postgres_data:

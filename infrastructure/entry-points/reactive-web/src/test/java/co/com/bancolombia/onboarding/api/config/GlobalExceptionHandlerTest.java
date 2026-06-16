@@ -42,7 +42,7 @@ class GlobalExceptionHandlerTest {
     }
 
     @Test
-    void shouldPropagateOtherExceptions() {
+    void shouldHandleOtherExceptionsAndReturn500() {
         // Arrange
         MockServerHttpRequest request = MockServerHttpRequest.get("/api/users/1").build();
         MockServerWebExchange exchange = MockServerWebExchange.from(request);
@@ -53,7 +53,10 @@ class GlobalExceptionHandlerTest {
 
         // Assert
         StepVerifier.create(result)
-                .expectErrorMatches(t -> t.getMessage().equals("Unexpected error"))
-                .verify();
+                .verifyComplete();
+
+        MockServerHttpResponse response = exchange.getResponse();
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.INTERNAL_SERVER_ERROR);
+        assertThat(response.getHeaders().getContentType()).isEqualTo(MediaType.APPLICATION_JSON);
     }
 }

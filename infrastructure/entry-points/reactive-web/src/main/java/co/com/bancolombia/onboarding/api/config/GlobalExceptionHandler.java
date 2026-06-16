@@ -20,15 +20,20 @@ public class GlobalExceptionHandler implements WebExceptionHandler {
 
     @Override
     public Mono<Void> handle(ServerWebExchange exchange, Throwable ex) {
+        String requestId = exchange.getRequest().getId();
         if (ex instanceof UserNotFoundException) {
-            log.warn("UserNotFoundException handled: {}", ex.getMessage());
+            log.warn("UserNotFoundException handled for request {}: {}", requestId, ex.getMessage());
             exchange.getResponse().setStatusCode(HttpStatus.NOT_FOUND);
             exchange.getResponse().getHeaders().setContentType(MediaType.APPLICATION_JSON);
-            String body = "{\"message\":\"" + ex.getMessage() + "\"}";
+            String body = "{\"message\":\"" + ex.getMessage() + "\",\"requestId\":\"" + requestId + "\"}";
             DataBuffer buffer = exchange.getResponse().bufferFactory().wrap(body.getBytes(StandardCharsets.UTF_8));
             return exchange.getResponse().writeWith(Mono.just(buffer));
         }
-        log.error("Unhandled exception occurred: {}", ex.getMessage(), ex);
-        return Mono.error(ex);
+        log.error("Unhandled exception occurred for request {}: {}", requestId, ex.getMessage(), ex);
+        exchange.getResponse().setStatusCode(HttpStatus.INTERNAL_SERVER_ERROR);
+        exchange.getResponse().getHeaders().setContentType(MediaType.APPLICATION_JSON);
+        String body = "{\"message\":\"Internal Server Error\",\"requestId\":\"" + requestId + "\"}";
+        DataBuffer buffer = exchange.getResponse().bufferFactory().wrap(body.getBytes(StandardCharsets.UTF_8));
+        return exchange.getResponse().writeWith(Mono.just(buffer));
     }
 }

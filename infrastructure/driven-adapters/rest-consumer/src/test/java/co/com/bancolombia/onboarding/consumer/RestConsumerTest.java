@@ -61,8 +61,8 @@ class RestConsumerTest {
     }
 
     @Test
-    @DisplayName("Validate external user fetch fallback on error")
-    void validateFetchUserFallbackOnError() {
+    @DisplayName("Validate external user fetch returns error on failure")
+    void validateFetchUserErrorOnFailure() {
         mockBackEnd.enqueue(new MockResponse()
                 .setHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
                 .setResponseCode(HttpStatus.INTERNAL_SERVER_ERROR.value()));
@@ -70,11 +70,8 @@ class RestConsumerTest {
         var response = restConsumer.fetchUser("1");
 
         StepVerifier.create(response)
-                .expectNextMatches(user -> user.getId().equals("1") &&
-                        user.getEmail().equals("george.bluth@reqres.in") &&
-                        user.getFirstName().equals("George") &&
-                        user.getLastName().equals("Bluth") &&
-                        user.getAvatar().equals("https://reqres.in/img/faces/1-image.jpg"))
-                .verifyComplete();
+                .expectErrorMatches(throwable -> throwable instanceof RuntimeException &&
+                        throwable.getMessage().contains("User not found or error fetching user from external API"))
+                .verify();
     }
 }

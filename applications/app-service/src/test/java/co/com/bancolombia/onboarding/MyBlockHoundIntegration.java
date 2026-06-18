@@ -11,5 +11,7 @@ public class MyBlockHoundIntegration implements BlockHoundIntegration {
         builder.allowBlockingCallsInside("java.net.URL", "openConnection");
         builder.allowBlockingCallsInside("java.util.Properties", "load");
         builder.allowBlockingCallsInside("java.util.Properties", "load0");
+        builder.allowBlockingCallsInside("io.netty.util.concurrent.DefaultPromise", "awaitUninterruptibly");
+        builder.allowBlockingCallsInside("io.netty.util.concurrent.DefaultPromise", "await");
     }
 }

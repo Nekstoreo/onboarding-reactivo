@@ -34,6 +34,7 @@ adapter:
   restconsumer:
     timeout: 5000
     url: "https://reqres.in"
+    apiKey: ${REQRES_API_KEY}
   sqs:
     region: "us-east-1"
     queueUrl: "http://localhost:4566/000000000000/user-created-events"

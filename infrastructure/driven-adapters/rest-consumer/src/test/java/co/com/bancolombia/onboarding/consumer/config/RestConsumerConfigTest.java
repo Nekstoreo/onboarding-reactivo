@@ -9,7 +9,7 @@ class RestConsumerConfigTest {
 
     @Test
     void testGetWebClient() {
-        RestConsumerConfig config = new RestConsumerConfig("https://example.com", 5000);
+        RestConsumerConfig config = new RestConsumerConfig("https://example.com", 5000, "dummy-key");
         WebClient webClient = config.getWebClient();
         assertThat(webClient).isNotNull();
     }

@@ -22,10 +22,14 @@ public class RestConsumerConfig {
 
     private final int timeout;
 
+    private final String apiKey;
+
     public RestConsumerConfig(@Value("${adapter.restconsumer.url}") String url,
-                              @Value("${adapter.restconsumer.timeout}") int timeout) {
+                              @Value("${adapter.restconsumer.timeout}") int timeout,
+                              @Value("${adapter.restconsumer.apiKey}") String apiKey) {
         this.url = url;
         this.timeout = timeout;
+        this.apiKey = apiKey;
     }
 
     @Bean
@@ -33,6 +37,7 @@ public class RestConsumerConfig {
         return WebClient.builder()
             .baseUrl(url)
             .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+            .defaultHeader("x-api-key", apiKey)
             .clientConnector(getClientHttpConnector())
             .build();
     }

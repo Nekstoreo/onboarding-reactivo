@@ -23,16 +23,8 @@ public class RestConsumer implements ExternalUserGateway {
                 .retrieve()
                 .bodyToMono(ReqResUserResponse.class)
                 .onErrorResume(error -> {
-                    log.warn("Failed to fetch user {} from external API, using fallback data. Error: {}", id, error.getMessage());
-                    return Mono.just(ReqResUserResponse.builder()
-                            .data(ReqResUserResponse.ReqResUserData.builder()
-                                    .id(id)
-                                    .email("george.bluth@reqres.in")
-                                    .firstName("George")
-                                    .lastName("Bluth")
-                                    .avatar("https://reqres.in/img/faces/1-image.jpg")
-                                    .build())
-                            .build());
+                    log.error("Failed to fetch user {} from external API. Error: {}", id, error.getMessage());
+                    return Mono.error(new RuntimeException("User not found or error fetching user from external API: " + error.getMessage()));
                 })
                 .map(response -> User.builder()
                         .id(response.getData().getId())

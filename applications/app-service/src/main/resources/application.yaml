@@ -5,6 +5,8 @@ spring:
     name: "UserReactiveApp"
   devtools:
     add-properties: false
+    restart:
+      enabled: false
   h2:
     console:
       enabled: true

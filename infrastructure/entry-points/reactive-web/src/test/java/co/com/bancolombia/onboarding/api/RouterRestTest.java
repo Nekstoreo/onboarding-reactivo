@@ -53,7 +53,7 @@ class RouterRestTest {
 
         when(createUserUseCase.createUser("1")).thenReturn(Mono.just(user));
 
-        UserRequest request = UserRequest.builder().id("1").build();
+        Handler.UserRequest request = new Handler.UserRequest("1");
 
         webTestClient.post()
                 .uri("/api/users")
@@ -154,7 +154,7 @@ class RouterRestTest {
 
     @Test
     void testCreateUserWithInvalidIdShouldReturnBadRequest() {
-        UserRequest request = UserRequest.builder().id("abc").build();
+        Handler.UserRequest request = new Handler.UserRequest("abc");
 
         webTestClient.post()
                 .uri("/api/users")

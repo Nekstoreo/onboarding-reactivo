@@ -17,6 +17,8 @@ import reactor.core.publisher.Mono;
 @Component
 @RequiredArgsConstructor
 public class Handler {
+    public record UserRequest(String id) {}
+
     private final CreateUserUseCase createUserUseCase;
     private final GetUserByIdUseCase getUserByIdUseCase;
     private final GetAllUsersUseCase getAllUsersUseCase;
@@ -26,8 +28,8 @@ public class Handler {
         return serverRequest.bodyToMono(UserRequest.class)
                 .switchIfEmpty(Mono.error(new ValidationException("Request body is required")))
                 .flatMap(userRequest -> {
-                    String id = userRequest.getId();
-                    if (id == null || id.isBlank() || !id.matches("^[0-9]+$")) {
+                    String id = userRequest.id();
+                    if (id == null || id.isBlank() || !id.matches("^\\d+$")) {
                         return Mono.error(new ValidationException("User ID must be a positive integer"));
                     }
                     return createUserUseCase.createUser(id)
@@ -39,7 +41,7 @@ public class Handler {
 
     public Mono<ServerResponse> getUserById(ServerRequest serverRequest) {
         String id = serverRequest.pathVariable("id");
-        if (id == null || id.isBlank() || !id.matches("^[0-9]+$")) {
+        if (id.isBlank() || !id.matches("^\\d+$")) {
             return Mono.error(new ValidationException("User ID must be a positive integer"));
         }
         return getUserByIdUseCase.getUserById(id)

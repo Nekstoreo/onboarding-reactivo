@@ -34,8 +34,9 @@ El proyecto se estructura en los siguientes módulos gradle:
 El entorno local se gestiona a través de contenedores Docker pre-configurados.
 
 1. **Iniciar contenedores**:
-   Desde la raíz del proyecto, ejecute:
+   Desde la raíz del proyecto, (opcionalmente exportando tu token de LocalStack para habilitar funciones en la nube) ejecute:
    ```bash
+   export LOCALSTACK_AUTH_TOKEN="tu-token-aqui" # Opcional
    docker compose up -d
    ```
    Esto iniciará PostgreSQL, Redis y LocalStack.
@@ -76,7 +77,77 @@ Para reportar la cobertura y ejecutar el análisis estático en la instancia de 
      -Dsonar.projectKey=Onboarding \
      -Dsonar.projectName='Onboarding' \
      -Dsonar.host.url=http://localhost:9000 \
-     -Dsonar.token=sqp_675b0bbe25aa684833c086646de8195553d685fc \
+     -Dsonar.token=sqp_675b0bbe25aa684833c086646de8195553d685fc
+     ```
+
+## Acceso a Bases de Datos locales
+
+Para auditar e inspeccionar los datos almacenados durante la ejecución local, conéctate a los motores usando los siguientes parámetros:
+
+### 1. PostgreSQL (Base de datos relacional)
+* **Host**: `localhost`
+* **Puerto**: `5432`
+* **Base de Datos**: `usersdb`
+* **Esquema**: `public` (tabla `users` creada automáticamente)
+* **Usuario**: `postgres`
+* **Contraseña**: `postgres`
+* *Herramienta recomendada: DBeaver, pgAdmin, IntelliJ Database tool, o CLI: `psql -h localhost -U postgres -d usersdb`*
+
+### 2. Redis (Caché en memoria)
+* **Host**: `localhost`
+* **Puerto**: `6379`
+* *Herramienta recomendada: Redis Insight, Another Redis Desktop Manager, o CLI: `redis-cli -h localhost -p 6379`*
+
+### 3. DynamoDB (Base de datos NoSQL)
+* **Endpoint local**: `http://localhost:4566`
+* **Región**: `us-east-1`
+* **Tabla**: `users-uppercase` (creada automáticamente en el arranque)
+* *Herramienta recomendada: AWS NoSQL Workbench (apuntando al endpoint local `http://localhost:4566`) o AWS CLI:*
+  ```bash
+  aws --profile localstack dynamodb scan --table-name users-uppercase
+  ```
+
+---
+
+## Interacción con LocalStack (AWS Local)
+
+Para pruebas, monitoreo y depuración manual de los recursos de AWS simulados localmente (SQS y DynamoDB), puedes interactuar a través de la terminal o de forma gráfica.
+
+### 1. Configuración de la AWS CLI para LocalStack
+Para poder usar la interfaz de línea de comandos de AWS (`aws cli`) apuntando al entorno local, se recomienda configurar manualmente los archivos de configuración en tu máquina:
+
+1. Agrega las credenciales simuladas (*dummy*) en tu archivo `~/.aws/credentials`:
+   ```ini
+   [localstack]
+   aws_access_key_id = test
+   aws_secret_access_key = test
    ```
 
+2. Agrega la configuración del perfil y el endpoint en tu archivo `~/.aws/config`:
+   ```ini
+   [profile localstack]
+   region = us-east-1
+   output = json
+   endpoint_url = http://localhost.localstack.cloud:4566
+   ```
+   
+### 2. Comandos útiles de AWS CLI (Perfil LocalStack)
+Una vez configurado el perfil, puedes interactuar directamente con los servicios locales:
 
+* **Listar colas SQS existentes**:
+  ```bash
+  aws --profile localstack sqs list-queues
+  ```
+* **Recibir/Visualizar mensajes de la cola (SQS)**:
+  ```bash
+  aws --profile localstack sqs receive-message --queue-url "http://sqs.us-east-1.localhost.localstack.cloud:4566/000000000000/user-created-events" --max-number-of-messages 10
+  ```
+
+---
+
+### 3. Visualizar recursos en LocalStack Cloud (Consola Web)
+LocalStack ofrece una consola web gratuita para gestionar gráficamente tu motor local:
+
+1. Abre tu navegador e ingresa a: **[https://app.localstack.cloud](https://app.localstack.cloud)**.
+2. La aplicación detectará automáticamente tu motor local y verás en la esquina inferior izquierda el indicador `LocalStack Status: Running`.
+3. Navega por el menú lateral (ej: **SQS** o **DynamoDB**) para visualizar colas, tablas, mensajes e interactuar de manera gráfica.

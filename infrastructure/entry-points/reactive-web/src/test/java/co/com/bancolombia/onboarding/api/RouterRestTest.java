@@ -2,7 +2,6 @@ package co.com.bancolombia.onboarding.api;
 
 import co.com.bancolombia.onboarding.model.user.User;
 import co.com.bancolombia.onboarding.model.user.UserNotFoundException;
-import co.com.bancolombia.onboarding.model.user.ValidationException;
 import co.com.bancolombia.onboarding.usecase.CreateUserUseCase;
 import co.com.bancolombia.onboarding.usecase.GetAllUsersUseCase;
 import co.com.bancolombia.onboarding.usecase.GetUserByIdUseCase;

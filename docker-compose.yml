@@ -30,6 +30,7 @@ services:
     environment:
       - SERVICES=sqs,dynamodb
       - AWS_DEFAULT_REGION=us-east-1
+      - LOCALSTACK_AUTH_TOKEN=${LOCALSTACK_AUTH_TOKEN- }
     volumes:
       - localstack_data:/var/lib/localstack
       - ./infra-init/aws:/etc/localstack/init/ready.d:z

@@ -94,4 +94,21 @@ class ReactiveRedisTemplateAdapterOperationsTest {
         StepVerifier.create(adapter.findById("1"))
                 .verifyComplete();
     }
+
+    @Test
+    void testFindByIdExceptionReturnsEmpty() {
+        when(reactiveValueOperations.get("1")).thenReturn(Mono.error(new RuntimeException("Redis connection failed")));
+
+        StepVerifier.create(adapter.findById("1"))
+                .verifyComplete();
+    }
+
+    @Test
+    void testSaveExceptionReturnsUser() {
+        when(reactiveValueOperations.set("1", sampleUser)).thenReturn(Mono.error(new RuntimeException("Redis write failed")));
+
+        StepVerifier.create(adapter.save(sampleUser))
+                .expectNext(sampleUser)
+                .verifyComplete();
+    }
 }

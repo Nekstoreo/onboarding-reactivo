@@ -24,8 +24,10 @@ public class SQSSender implements UserEventGateway {
         return Mono.fromCallable(() -> objectMapper.writeValueAsString(user))
                 .map(this::buildRequest)
                 .flatMap(request -> Mono.fromFuture(client.sendMessage(request)))
-                .doOnNext(response -> log.debug("Message sent {}", response.messageId()))
-                .then();
+                .doOnNext(response -> log.debug("Message sent successfully with ID: {}", response.messageId()))
+                .doOnError(ex -> log.error("SQS Error (publishUserCreated failed) for User {}: {}", user.getId(), ex.getMessage(), ex))
+                .then()
+                .onErrorResume(ex -> Mono.empty());
     }
 
     private SendMessageRequest buildRequest(String message) {

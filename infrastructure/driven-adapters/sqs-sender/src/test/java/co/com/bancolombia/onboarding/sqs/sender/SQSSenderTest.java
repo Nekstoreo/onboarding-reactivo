@@ -64,4 +64,32 @@ class SQSSenderTest {
 
         verify(client, times(1)).sendMessage(any(SendMessageRequest.class));
     }
+
+    @Test
+    void shouldTolerateSqsPublishFailureAndCompleteSuccessfully() {
+        // Arrange
+        User user = User.builder()
+                .id("1")
+                .email("george.bluth@reqres.in")
+                .firstName("George")
+                .lastName("Bluth")
+                .avatar("https://reqres.in/img/faces/1-image.jpg")
+                .build();
+
+        CompletableFuture<SendMessageResponse> failedFuture = new CompletableFuture<>();
+        failedFuture.completeExceptionally(new RuntimeException("SQS is down"));
+
+        when(properties.queueUrl()).thenReturn("http://localhost:4566/000000000000/user-created-events");
+        when(client.sendMessage(any(SendMessageRequest.class)))
+                .thenReturn(failedFuture);
+
+        // Act
+        var result = sqsSender.publishUserCreated(user);
+
+        // Assert - should complete successfully (Mono.empty()) instead of throwing the error
+        StepVerifier.create(result)
+                .verifyComplete();
+
+        verify(client, times(1)).sendMessage(any(SendMessageRequest.class));
+    }
 }

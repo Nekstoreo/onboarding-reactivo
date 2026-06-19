@@ -141,7 +141,7 @@ class RouterRestTest {
         when(getUsersByNameUseCase.getUsersByName("John")).thenReturn(Flux.just(user));
 
         webTestClient.get()
-                .uri("/api/users/search?name=John")
+                .uri("/api/users?name=John")
                 .accept(MediaType.APPLICATION_JSON)
                 .exchange()
                 .expectStatus().isOk()

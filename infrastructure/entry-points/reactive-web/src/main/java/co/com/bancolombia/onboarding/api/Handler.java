@@ -48,17 +48,15 @@ public class Handler {
                         .bodyValue(user));
     }
 
-    public Mono<ServerResponse> getAllUsers(ServerRequest serverRequest) {
+    public Mono<ServerResponse> getUsers(ServerRequest serverRequest) {
+        String name = serverRequest.queryParam("name").orElse("");
+        if (!name.isBlank()) {
+            return ServerResponse.ok()
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .body(getUsersByNameUseCase.getUsersByName(name), User.class);
+        }
         return ServerResponse.ok()
                 .contentType(MediaType.APPLICATION_JSON)
                 .body(getAllUsersUseCase.getAllUsers(), User.class);
-    }
-
-    public Mono<ServerResponse> getUsersByName(ServerRequest serverRequest) {
-        String name = serverRequest.queryParam("name")
-                .orElse("");
-        return ServerResponse.ok()
-                .contentType(MediaType.APPLICATION_JSON)
-                .body(getUsersByNameUseCase.getUsersByName(name), User.class);
     }
 }

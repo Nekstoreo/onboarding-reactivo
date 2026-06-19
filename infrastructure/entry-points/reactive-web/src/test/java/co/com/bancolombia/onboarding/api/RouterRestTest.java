@@ -168,9 +168,37 @@ class RouterRestTest {
     }
 
     @Test
+    void testCreateUserWithLeadingZeroIdShouldReturnBadRequest() {
+        Handler.UserRequest request = new Handler.UserRequest("01");
+
+        webTestClient.post()
+                .uri("/api/users")
+                .contentType(MediaType.APPLICATION_JSON)
+                .bodyValue(request)
+                .accept(MediaType.APPLICATION_JSON)
+                .exchange()
+                .expectStatus().isBadRequest()
+                .expectBody()
+                .jsonPath("$.message").isEqualTo("User ID must be a positive integer")
+                .jsonPath("$.requestId").exists();
+    }
+
+    @Test
     void testGetUserByIdWithInvalidIdShouldReturnBadRequest() {
         webTestClient.get()
                 .uri("/api/users/abc")
+                .accept(MediaType.APPLICATION_JSON)
+                .exchange()
+                .expectStatus().isBadRequest()
+                .expectBody()
+                .jsonPath("$.message").isEqualTo("User ID must be a positive integer")
+                .jsonPath("$.requestId").exists();
+    }
+
+    @Test
+    void testGetUserByIdWithLeadingZeroIdShouldReturnBadRequest() {
+        webTestClient.get()
+                .uri("/api/users/01")
                 .accept(MediaType.APPLICATION_JSON)
                 .exchange()
                 .expectStatus().isBadRequest()

@@ -29,7 +29,7 @@ public class Handler {
                 .switchIfEmpty(Mono.error(new ValidationException("Request body is required")))
                 .flatMap(userRequest -> {
                     String id = userRequest.id();
-                    if (id == null || id.isBlank() || !id.matches("^\\d+$")) {
+                    if (id == null || id.isBlank() || !id.matches("^[1-9]\\d*$")) {
                         return Mono.error(new ValidationException("User ID must be a positive integer"));
                     }
                     return createUserUseCase.createUser(id)
@@ -41,7 +41,7 @@ public class Handler {
 
     public Mono<ServerResponse> getUserById(ServerRequest serverRequest) {
         String id = serverRequest.pathVariable("id");
-        if (id.isBlank() || !id.matches("^\\d+$")) {
+        if (id.isBlank() || !id.matches("^[1-9]\\d*$")) {
             return Mono.error(new ValidationException("User ID must be a positive integer"));
         }
         return getUserByIdUseCase.getUserById(id)

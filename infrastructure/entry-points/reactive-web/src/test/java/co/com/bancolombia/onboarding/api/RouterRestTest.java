@@ -178,4 +178,40 @@ class RouterRestTest {
                 .jsonPath("$.message").isEqualTo("User ID must be a positive integer")
                 .jsonPath("$.requestId").exists();
     }
+
+    @Test
+    void testGetUsersByNameWithEmptyValueShouldReturnBadRequest() {
+        webTestClient.get()
+                .uri("/api/users?name=")
+                .accept(MediaType.APPLICATION_JSON)
+                .exchange()
+                .expectStatus().isBadRequest()
+                .expectBody()
+                .jsonPath("$.message").isEqualTo("Query parameter 'name' cannot be empty")
+                .jsonPath("$.requestId").exists();
+    }
+
+    @Test
+    void testGetUsersByNameWithInvalidParamShouldReturnBadRequest() {
+        webTestClient.get()
+                .uri("/api/users?nae=John")
+                .accept(MediaType.APPLICATION_JSON)
+                .exchange()
+                .expectStatus().isBadRequest()
+                .expectBody()
+                .jsonPath("$.message").isEqualTo("Invalid query parameters")
+                .jsonPath("$.requestId").exists();
+    }
+
+    @Test
+    void testGetUsersByNameWithMultipleParamsShouldReturnBadRequest() {
+        webTestClient.get()
+                .uri("/api/users?name=John&age=25")
+                .accept(MediaType.APPLICATION_JSON)
+                .exchange()
+                .expectStatus().isBadRequest()
+                .expectBody()
+                .jsonPath("$.message").isEqualTo("Invalid query parameters")
+                .jsonPath("$.requestId").exists();
+    }
 }

@@ -51,14 +51,25 @@ public class Handler {
     }
 
     public Mono<ServerResponse> getUsers(ServerRequest serverRequest) {
-        String name = serverRequest.queryParam("name").orElse("");
-        if (!name.isBlank()) {
+        var queryParams = serverRequest.queryParams();
+
+        if (queryParams.isEmpty()) {
             return ServerResponse.ok()
                     .contentType(MediaType.APPLICATION_JSON)
-                    .body(getUsersByNameUseCase.getUsersByName(name), User.class);
+                    .body(getAllUsersUseCase.getAllUsers(), User.class);
         }
+
+        if (queryParams.size() > 1 || !queryParams.containsKey("name")) {
+            return Mono.error(new ValidationException("Invalid query parameters"));
+        }
+
+        String name = queryParams.getFirst("name");
+        if (name == null || name.isBlank()) {
+            return Mono.error(new ValidationException("Query parameter 'name' cannot be empty"));
+        }
+
         return ServerResponse.ok()
                 .contentType(MediaType.APPLICATION_JSON)
-                .body(getAllUsersUseCase.getAllUsers(), User.class);
+                .body(getUsersByNameUseCase.getUsersByName(name), User.class);
     }
 }

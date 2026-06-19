@@ -9,6 +9,8 @@ import org.springframework.data.redis.connection.ReactiveRedisConnectionFactory;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
 
+import java.time.Duration;
+
 @Component
 @Log4j2
 public class ReactiveRedisTemplateAdapter extends ReactiveTemplateAdapterOperations<User, String, User>
@@ -21,6 +23,7 @@ public class ReactiveRedisTemplateAdapter extends ReactiveTemplateAdapterOperati
     @Override
     public Mono<User> findById(String id) {
         return super.findById(id)
+                .timeout(Duration.ofMillis(500))
                 .onErrorResume(ex -> {
                     log.warn("KV Exception (Redis findById failed) for ID {}: {}", id, ex.getMessage(), ex);
                     return Mono.empty();
@@ -30,6 +33,7 @@ public class ReactiveRedisTemplateAdapter extends ReactiveTemplateAdapterOperati
     @Override
     public Mono<User> save(User user) {
         return super.save(user.getId(), user)
+                .timeout(Duration.ofMillis(500))
                 .onErrorResume(ex -> {
                     log.warn("KV Exception (Redis save failed) for ID {}: {}", user.getId(), ex.getMessage(), ex);
                     return Mono.just(user);

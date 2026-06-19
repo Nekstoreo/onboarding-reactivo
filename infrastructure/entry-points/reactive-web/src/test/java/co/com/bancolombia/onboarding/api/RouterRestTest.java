@@ -2,6 +2,7 @@ package co.com.bancolombia.onboarding.api;
 
 import co.com.bancolombia.onboarding.model.user.User;
 import co.com.bancolombia.onboarding.model.user.UserNotFoundException;
+import co.com.bancolombia.onboarding.model.user.ValidationException;
 import co.com.bancolombia.onboarding.usecase.CreateUserUseCase;
 import co.com.bancolombia.onboarding.usecase.GetAllUsersUseCase;
 import co.com.bancolombia.onboarding.usecase.GetUserByIdUseCase;
@@ -52,8 +53,12 @@ class RouterRestTest {
 
         when(createUserUseCase.createUser("1")).thenReturn(Mono.just(user));
 
+        UserRequest request = UserRequest.builder().id("1").build();
+
         webTestClient.post()
-                .uri("/api/users/1")
+                .uri("/api/users")
+                .contentType(MediaType.APPLICATION_JSON)
+                .bodyValue(request)
                 .accept(MediaType.APPLICATION_JSON)
                 .exchange()
                 .expectStatus().isCreated()
@@ -145,5 +150,33 @@ class RouterRestTest {
                 .value(list -> {
                     Assertions.assertThat(list.get(0).getFirstName()).isEqualTo("John");
                 });
+    }
+
+    @Test
+    void testCreateUserWithInvalidIdShouldReturnBadRequest() {
+        UserRequest request = UserRequest.builder().id("abc").build();
+
+        webTestClient.post()
+                .uri("/api/users")
+                .contentType(MediaType.APPLICATION_JSON)
+                .bodyValue(request)
+                .accept(MediaType.APPLICATION_JSON)
+                .exchange()
+                .expectStatus().isBadRequest()
+                .expectBody()
+                .jsonPath("$.message").isEqualTo("User ID must be a positive integer")
+                .jsonPath("$.requestId").exists();
+    }
+
+    @Test
+    void testGetUserByIdWithInvalidIdShouldReturnBadRequest() {
+        webTestClient.get()
+                .uri("/api/users/abc")
+                .accept(MediaType.APPLICATION_JSON)
+                .exchange()
+                .expectStatus().isBadRequest()
+                .expectBody()
+                .jsonPath("$.message").isEqualTo("User ID must be a positive integer")
+                .jsonPath("$.requestId").exists();
     }
 }

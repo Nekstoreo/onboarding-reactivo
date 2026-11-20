@@ -14,12 +14,16 @@ public class ProcessUserEventUseCase {
             return Mono.empty();
         }
         User uppercaseUser = user.toBuilder()
-                .firstName(user.getFirstName() != null ? user.getFirstName().toUpperCase() : null)
-                .lastName(user.getLastName() != null ? user.getLastName().toUpperCase() : null)
-                .email(user.getEmail() != null ? user.getEmail().toUpperCase() : null)
-                .avatar(user.getAvatar() != null ? user.getAvatar().toUpperCase() : null)
+                .firstName(toUpperCase(user.getFirstName()))
+                .lastName(toUpperCase(user.getLastName()))
+                .email(toUpperCase(user.getEmail()))
+                .avatar(toUpperCase(user.getAvatar()))
                 .build();
 
         return userNoSqlGateway.save(uppercaseUser);
+    }
+
+    private String toUpperCase(String value) {
+        return value != null ? value.toUpperCase() : null;
     }
 }

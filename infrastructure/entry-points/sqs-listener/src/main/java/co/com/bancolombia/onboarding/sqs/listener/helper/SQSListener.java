@@ -12,6 +12,7 @@ import software.amazon.awssdk.services.sqs.model.DeleteMessageRequest;
 import software.amazon.awssdk.services.sqs.model.Message;
 import software.amazon.awssdk.services.sqs.model.ReceiveMessageRequest;
 
+import java.time.Duration;
 import java.util.function.Function;
 
 @Log4j2
@@ -34,6 +35,7 @@ public class SQSListener {
     private Flux<Void> listenRetryRepeat() {
         return listen()
                 .doOnError(e -> log.error("Error listening sqs queue", e))
+                .onErrorResume(e -> Mono.delay(Duration.ofSeconds(5)).then(Mono.empty()))
                 .repeat();
     }
 

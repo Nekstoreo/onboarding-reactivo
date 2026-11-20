@@ -1,5 +1,7 @@
 package co.com.bancolombia.onboarding.consumer;
 
+import co.com.bancolombia.onboarding.model.user.UserNotFoundException;
+
 
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
@@ -71,7 +73,22 @@ class RestConsumerTest {
 
         StepVerifier.create(response)
                 .expectErrorMatches(throwable -> throwable instanceof RuntimeException &&
-                        throwable.getMessage().contains("User not found or error fetching user from external API"))
+                        throwable.getMessage().contains("Error fetching user from external API"))
+                .verify();
+    }
+
+    @Test
+    @DisplayName("Validate external user fetch returns UserNotFoundException on 404")
+    void validateFetchUserNotFound() {
+        mockBackEnd.enqueue(new MockResponse()
+                .setHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+                .setResponseCode(HttpStatus.NOT_FOUND.value()));
+
+        var response = restConsumer.fetchUser("1");
+
+        StepVerifier.create(response)
+                .expectErrorMatches(throwable -> throwable instanceof UserNotFoundException &&
+                        throwable.getMessage().contains("User not found in external API with id 1"))
                 .verify();
     }
 }
